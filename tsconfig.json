@@ -1,0 +1,14 @@
+{
+  "include": [
+      "src/ts/**/*"
+  ],
+  "compilerOptions": {
+      "module": "ESNext",
+      "target": "ESNext",
+      "moduleResolution": "node",
+      "declaration": true,
+      "declarationDir": "build/types",
+      "baseUrl": ".",
+      "noImplicitAny": true
+  }
+}
