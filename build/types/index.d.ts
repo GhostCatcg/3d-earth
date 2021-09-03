@@ -1,1 +1,1 @@
-export {};
+import 'normalize.css/normalize.css';
