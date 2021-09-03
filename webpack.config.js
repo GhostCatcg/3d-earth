@@ -87,6 +87,12 @@ module.exports = {
     new HTMLWebpackPlugin({
       template: "./src/index.html"
     }),
+    // 把整个目录copy过去
+    new CopyWebpackPlugin({
+        patterns: [
+            { from: path.resolve(__dirname, './static') }
+        ]
+    }),
   ],
   // 用来设置引用模块
   resolve: {
