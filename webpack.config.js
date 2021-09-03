@@ -3,6 +3,11 @@ const path = require('path');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 // 把整个目录copy过去
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+// 引入clean插件
+const {
+  CleanWebpackPlugin
+} = require('clean-webpack-plugin');
+
 
 // webpack中的所有的配置信息都应该写在module.exports中
 module.exports = {
@@ -78,14 +83,9 @@ module.exports = {
 
   // 配置Webpack插件
   plugins: [
+    // new CleanWebpackPlugin(),
     new HTMLWebpackPlugin({
       template: "./src/index.html"
-    }),
-    // 把整个目录copy过去
-    new CopyWebpackPlugin({
-        patterns: [
-            { from: path.resolve(__dirname, './static') }
-        ]
     }),
   ],
   // 用来设置引用模块

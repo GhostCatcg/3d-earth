@@ -89,6 +89,6 @@ export class World {
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
     this.controls.update()
-    this.useShader && (this.material.uniforms.uTime.value = this.clock.getElapsedTime()*0.5)
+    this.useShader && (this.material.uniforms.uTime.value = this.clock.getElapsedTime())
   }
 }

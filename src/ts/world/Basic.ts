@@ -55,7 +55,7 @@ export class Basic {
     // 使动画循环使用时阻尼或自转 意思是否有惯性
     this.controls.enableDamping = true;
     // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
-    this.controls.dampingFactor = 0.5;
+    this.controls.dampingFactor = 0.05;
     // 是否可以缩放
     this.controls.enableZoom = true;
     // 是否开启右键拖拽
