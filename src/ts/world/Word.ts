@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { BoxGeometry, Clock, Color, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, ShaderMaterial, WebGLRenderer } from "three";
 import {
   OrbitControls
 } from "three/examples/jsm/controls/OrbitControls";
@@ -16,20 +16,25 @@ import { Resources } from './Resources';
 // shader
 import boxVertex from '../../shaders/box/vertex.vs'
 import boxFragment from '../../shaders/box/fragment.fs'
+import { EventEmitter } from "pietile-eventemitter";
+interface Events {
+  historyChange: () => void
+}
 
-
-export class World {
-  public basic: any;
-  public scene: THREE.Scene;
-  public camera: THREE.PerspectiveCamera;
-  public renderer: THREE.WebGLRenderer
+export default class World {
+  public basic: Basic;
+  public scene: Scene;
+  public camera: PerspectiveCamera;
+  public renderer: WebGLRenderer
   public controls: OrbitControls;
   public sizes: Sizes;
-  public material: THREE.Material | THREE.ShaderMaterial | any;
+  public material: ShaderMaterial | MeshBasicMaterial;
   public useShader: Boolean = true;
-  public clock: THREE.Clock;
+  public clock: Clock;
   public debug: Pane;
-  public resources: any;
+  public resources: Resources;
+  public emitter: any
+  public option: IWord;
 
 
 
@@ -37,20 +42,23 @@ export class World {
     /**
      * 加载资源
      */
+    this.option = option
+    this.emitter = new EventEmitter<Events>()
     this.basic = new Basic(option.dom)
     this.scene = this.basic.scene
     this.renderer = this.basic.renderer
     this.controls = this.basic.controls
     this.camera = this.basic.camera
 
-    this.sizes = new Sizes(option.dom)
-    this.clock = new THREE.Clock()
+    this.sizes = new Sizes(this)
+    this.clock = new Clock()
+
 
     this.initialize()
 
     this.resources = new Resources(() => {
       console.log('资源加载完成', this.resources)
-      this.createBox()
+      this.createBox() // 写你的逻辑吧 hxd
       this.render()
     })
   }
@@ -59,10 +67,10 @@ export class World {
    * 初始化场景
    */
   public initialize() {
-    this.scene.background = new THREE.Color('#000')
+    this.scene.background = new Color('#000')
     this.camera.position.set(5, 5, 5)
     this.setDebug()
-    this.sizes.$on('resize', () => {
+    this.emitter.$on('resize', () => {
       this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height))
       this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height)
       this.camera.updateProjectionMatrix()
@@ -73,10 +81,10 @@ export class World {
    */
   public createBox() {
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geometry = new BoxGeometry(1, 1, 1);
 
     if (this.useShader) {
-      this.material = new THREE.ShaderMaterial({
+      this.material = new ShaderMaterial({
         uniforms: {
           uTime: {
             value: 0
@@ -87,9 +95,9 @@ export class World {
       });
 
     } else {
-      this.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      this.material = new MeshBasicMaterial({ color: 0x00ff00 });
     }
-    const cube = new THREE.Mesh(geometry, this.material);
+    const cube = new Mesh(geometry, this.material);
     this.scene.add(cube);
     this.controls.target = _.cloneDeep(cube.position)
     const PARAMS = {
@@ -117,6 +125,6 @@ export class World {
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
     this.controls && this.controls.update()
-    this.useShader && (this.material.uniforms.uTime.value = this.clock.getElapsedTime())
+    this.useShader && ((this.material as ShaderMaterial).uniforms.uTime.value = this.clock.getElapsedTime())
   }
 }

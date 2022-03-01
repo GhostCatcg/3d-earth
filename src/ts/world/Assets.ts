@@ -2,11 +2,18 @@
  * 资源文件
  * 把模型和图片分开进行加载
  */
-interface Resources {
-  textures?: any,
+
+interface ITextures {
+  chinese_name:string
+  name:string
+  path:string
+}
+
+interface IResources {
+  textures?: ITextures[],
   models?: any,
 }
-const resources: Resources = {
+const resources: IResources = {
   textures: [
     {
       chinese_name: '科技地球',

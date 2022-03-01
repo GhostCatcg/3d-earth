@@ -1,9 +1,9 @@
 /**
  * 屏幕尺寸
- */
-import EventEmitter from './EventEmitter'
+*/
+import World from '../world/Word';
 
-export default class Sizes extends EventEmitter {
+export default class Sizes {
   public width: number
   public height: number
   public viewport: {
@@ -11,14 +11,14 @@ export default class Sizes extends EventEmitter {
     height: Number
   }
   public $sizeViewport: HTMLElement
+  public emitter: any;
   /**
    * Constructor
    */
-  constructor(dom: HTMLElement) {
-    super()
-
+  constructor(user: World) {
+    this.emitter = user.emitter
     // Viewport size
-    this.$sizeViewport = dom
+    this.$sizeViewport = user.option.dom
 
     this.viewport = {
       width: 0,
@@ -43,6 +43,6 @@ export default class Sizes extends EventEmitter {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    this.$emit('resize')
+    this.emitter.$emit('resize')
   }
 }
