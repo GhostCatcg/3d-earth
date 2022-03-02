@@ -43,6 +43,6 @@ export default class Sizes {
     this.width = window.innerWidth
     this.height = window.innerHeight
 
-    this.emitter.$emit('resize')
+    this.emitter.emit('resize')
   }
 }

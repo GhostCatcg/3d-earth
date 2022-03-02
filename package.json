@@ -12,20 +12,32 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack serve --mode development --open chrome.exe",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "lint": "eslint",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "src/*.{js,jsx,tsx,ts}": "eslint --fix"
   },
   "homepage": "https://gcat.cc",
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@size-limit/preset-small-lib": "^7.0.3",
     "@types/lodash": "^4.14.172",
     "@types/three": "^0.131.0",
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^9.0.1",
     "core-js": "^3.8.1",
     "css-loader": "^6.2.0",
+    "eslint": "^8.10.0",
     "html-webpack-plugin": "^4.5.0",
+    "husky": "^7.0.0",
+    "lint-staged": "^12.1.2",
     "style-loader": "^3.2.1",
     "ts-loader": "^8.0.12",
     "ts-shader-loader": "^1.0.6",
@@ -36,6 +48,7 @@
   },
   "dependencies": {
     "@tweakpane/core": "^1.0.6",
+    "eslint-webpack-plugin": "^3.1.1",
     "gsap": "^3.7.1",
     "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",

@@ -70,7 +70,7 @@ export default class World {
     this.scene.background = new Color('#000')
     this.camera.position.set(5, 5, 5)
     this.setDebug()
-    this.emitter.$on('resize', () => {
+    this.emitter.on('resize', () => {
       this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height))
       this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height)
       this.camera.updateProjectionMatrix()
