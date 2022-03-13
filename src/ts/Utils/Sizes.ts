@@ -1,17 +1,19 @@
 /**
  * 屏幕尺寸
 */
+import { EventEmitter } from 'pietile-eventemitter';
+import { IEvents } from '../interfaces/IEvents';
 import World from '../world/Word';
 
 export default class Sizes {
   public width: number
   public height: number
   public viewport: {
-    width: Number,
-    height: Number
+    width: number,
+    height: number
   }
   public $sizeViewport: HTMLElement
-  public emitter: any;
+  public emitter: EventEmitter<IEvents>;
   /**
    * Constructor
    */

@@ -4,7 +4,6 @@ import {
 } from "three/examples/jsm/controls/OrbitControls";
 import * as _ from 'lodash'
 import { Pane } from 'tweakpane'
-import gsap from 'gsap'
 
 // interfaces
 import { IWord } from '../interfaces/IWord'
@@ -17,10 +16,9 @@ import { Resources } from './Resources';
 import boxVertex from '../../shaders/box/vertex.vs'
 import boxFragment from '../../shaders/box/fragment.fs'
 import { EventEmitter } from "pietile-eventemitter";
-interface Events {
-  historyChange: () => void
-  resize: () => void
-}
+
+// interface
+import {IEvents} from '../interfaces/IEvents'
 
 export default class World {
   public basic: Basic;
@@ -30,11 +28,11 @@ export default class World {
   public controls: OrbitControls;
   public sizes: Sizes;
   public material: ShaderMaterial | MeshBasicMaterial;
-  public useShader: Boolean = true;
+  public useShader = true;
   public clock: Clock;
   public debug: Pane;
   public resources: Resources;
-  public emitter: EventEmitter<Events>
+  public emitter: EventEmitter<IEvents>
   public option: IWord;
 
 
@@ -44,7 +42,7 @@ export default class World {
      * 加载资源
      */
     this.option = option
-    this.emitter = new EventEmitter<Events>()
+    this.emitter = new EventEmitter<IEvents>()
     this.basic = new Basic(option.dom)
     this.scene = this.basic.scene
     this.renderer = this.basic.renderer
