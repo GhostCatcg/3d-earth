@@ -14,7 +14,7 @@
     overflow: hidden;
     position: relative;
   }
-  h1{
+  h1,h2{
     position: absolute;
     color:#fff;
     width: 100%;
@@ -24,6 +24,15 @@
     padding-top:20vh;
     pointer-events: none;
   }
+  h2{
+    pointer-events: all;
+    padding-top:25vh;
+  }
+  h2 a{
+    color:rgb(19, 22, 226);
+    font-size: 30px;
+  }
+
   #threejs-canvas{
     height: 100%;
     width: 100%;
@@ -32,6 +41,7 @@
 
 <body>
   <h1>Webpack 5 + Typescript 4 + Threejs + Shader 基础模板</h1>
+  <h2><a target="_blank" href="https://github.com/GhostCatcg/three-ts-webpack">Github</a></h2>
   <div id="threejs-canvas"></div>
 </body>
 
