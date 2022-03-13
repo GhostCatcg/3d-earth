@@ -19,6 +19,7 @@ import boxFragment from '../../shaders/box/fragment.fs'
 import { EventEmitter } from "pietile-eventemitter";
 interface Events {
   historyChange: () => void
+  resize: () => void
 }
 
 export default class World {
@@ -33,7 +34,7 @@ export default class World {
   public clock: Clock;
   public debug: Pane;
   public resources: Resources;
-  public emitter: any
+  public emitter: EventEmitter<Events>
   public option: IWord;
 
 
