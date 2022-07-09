@@ -26,6 +26,7 @@ export default class Sizes {
       width: 0,
       height: 0
     }
+    
     // Resize event
     this.resize = this.resize.bind(this)
     window.addEventListener('resize', this.resize)

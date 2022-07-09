@@ -20,6 +20,10 @@ export class Basic {
     this.initScenes()
     this.createControls()
   }
+
+  /**
+   * 初始化场景
+   */
   initScenes() {
     this.scene = new THREE.Scene();
 

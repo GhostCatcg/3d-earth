@@ -120,6 +120,7 @@ export default class World {
       expanded: true,
     })
   }
+
   /**
    * 渲染函数
    */
