@@ -38,7 +38,6 @@ export class Basic {
       alpha: true,
       antialias: true,
     });
-    this.renderer.setClearColor(0xffffff, 0);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.dom.appendChild(this.renderer.domElement);
@@ -49,9 +48,6 @@ export class Basic {
   createControls() {
     // 鼠标控制      相机，渲染dom
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    // this.controls.addEventListener('change',(e)=>{
-    //   console.log(e)
-    // })
     // 是否自动旋转
     this.controls.autoRotate = true
     this.controls.autoRotateSpeed = 5

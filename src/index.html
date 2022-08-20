@@ -33,16 +33,41 @@
     font-size: 30px;
   }
 
-  #threejs-canvas{
+  #earth-canvas{
     height: 100%;
     width: 100%;
+    background: #010826;
   }
+  
+  #html2canvas {
+    position: absolute;
+    z-index: -1;
+    left: 0;
+    background: rgba(0, 0, 0, 0);
+  }
+  .css3d-wapper {
+    pointer-events: none;
+    color: #fff;
+  }
+  
+  .css3d-wapper .fire-div {
+      font-size: 20px;
+      font-weight: 600;
+      border-top: 3px solid #0cd1eb;
+      padding: 6px 8px;
+      min-width: 50px;
+      background: rgba(40, 108, 181, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 </style>
 
 <body>
-  <h1>Webpack 5 + Typescript 4 + Threejs + Shader 基础模板</h1>
-  <h2><a target="_blank" href="https://github.com/GhostCatcg/three-ts-webpack">Github</a></h2>
-  <div id="threejs-canvas"></div>
+  <div id="html2canvas" class="css3d-wapper">
+    <div class="fire-div"></div>
+  </div>
+  <div id="earth-canvas"></div>
 </body>
 
 </html>
