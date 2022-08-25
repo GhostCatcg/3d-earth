@@ -10,6 +10,9 @@ const ESLintPlugin = require('eslint-webpack-plugin')
 
 // webpack中的所有的配置信息都应该写在module.exports中
 module.exports = {
+  devServer: {
+    port: '8088'
+  },
   // 指定入口文件
   entry: './src/ts/index.ts',
   // 指定打包文件所在目录

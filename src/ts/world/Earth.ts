@@ -14,7 +14,7 @@ import html2canvas from "html2canvas";
 import earthVertex from '../../shaders/earth/vertex.vs';
 import earthFragment from '../../shaders/earth/fragment.fs';
 import { createAnimateLine, createLightPillar, createPointMesh, createWaveMesh, getCirclePoints, lon2xyz } from "../Utils/common";
-import { flyArc } from "../Utils/arc";
+// import { flyArc } from "../Utils/arc";
 
 export type punctuation = {
   circleColor: number,
@@ -156,11 +156,11 @@ export default class earth {
 
       this.createStars(); // 添加星星
       this.createEarth(); // 创建地球
-      this.createEarthAperture() // 创建地球光晕
-      this.createEarthGlow() // 创建地球的大气层辉光
+      this.createEarthAperture() // 创建地球辉光
+      this.createEarthGlow() // 创建地球的大气层
       this.createMarkupPoint() // 创建标记点
 
-      this.options.labelType === 0 ? this.createCss2DLabel() : this.createSpriteLabel()
+      // this.options.labelType === 0 ? this.createCss2DLabel() : this.createSpriteLabel()
 
       // this.createFlyLine() // 创建飞线
       // this.createAnimateCircle() // 创建环绕卫星
@@ -199,6 +199,7 @@ export default class earth {
     this.uniforms.map.value = this.options.textures.earth;
 
     const earth_material = new ShaderMaterial({
+      // wireframe:true, // 显示模型线条
       uniforms: this.uniforms,
       vertexShader: earthVertex,
       fragmentShader: earthFragment,
@@ -206,10 +207,7 @@ export default class earth {
 
     earth_material.needsUpdate = true;
     this.earth = new Mesh(earth_geometry, earth_material);
-    this.earth.castShadow = true;
-    this.earth.receiveShadow = true;
     this.earth.name = "earth";
-    // this.earth.layers = this.bloomLayer;
     this.group.add(this.earth);
 
     // flyArcGroup.traverse((item) => {
@@ -299,7 +297,7 @@ export default class earth {
         },
         power: {
           type: "f",
-          value: 2,
+          value: 3,
         },
         glowColor: {
           type: "c",

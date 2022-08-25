@@ -11,36 +11,37 @@ export class Resources {
   constructor(callback: () => void) {
     this.callback = callback // 资源加载完成的回调
 
-    this.textures = {} // 贴图数据
+    this.textures = {} // 贴图对象
 
-    this.LoadingResources()
+    this.setLoadingManager()
     this.loadResources()
   }
 
   /**
-   * 加载状态管理
+   * 管理加载状态
    */
-  private LoadingResources() {
+  private setLoadingManager() {
+    
     this.manager = new LoadingManager()
     // 开始加载
-    // this.manager.onStart = () => {
-    //   console.log('开始加载资源文件')
-    // }
+    this.manager.onStart = () => {
+      console.log('开始加载资源文件')
+    }
     // 加载完成
     this.manager.onLoad = () => {
-      // console.log('加载完成')
       this.callback()
     }
     // 正在进行中
-    // this.manager.onProgress = (url) => {
-    //   console.log(`正在加载：${url}`)
-    // }
+    this.manager.onProgress = (url) => {
+      console.log(`正在加载：${url}`)
+    }
 
-    // this.manager.onError = url => {
-    //   console.log('加载失败：' + url)
-    // }
+    this.manager.onError = url => {
+      console.log('加载失败：' + url)
+    }
 
   }
+
   /**
    * 加载资源
    */

@@ -61,10 +61,6 @@ export default class Sizes {
     this.viewport.width = this.$sizeViewport.offsetWidth
     this.viewport.height = this.$sizeViewport.offsetHeight
 
-    // 屏幕大小
-    this.width = window.innerWidth
-    this.height = window.innerHeight
-
     this.emitter.emit('resize')
   }
 }

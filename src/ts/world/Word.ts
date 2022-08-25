@@ -1,5 +1,5 @@
 import {
-  Clock, MeshBasicMaterial, PerspectiveCamera,
+  MeshBasicMaterial, PerspectiveCamera,
   Scene, ShaderMaterial, WebGLRenderer
 } from "three";
 import {
@@ -30,8 +30,6 @@ export default class World {
   public controls: OrbitControls;
   public sizes: Sizes;
   public material: ShaderMaterial | MeshBasicMaterial;
-  public useShader = true;
-  public clock: Clock;
   public resources: Resources;
   public emitter: EventEmitter<IEvents>
   public option: IWord;
@@ -53,11 +51,12 @@ export default class World {
     this.camera = this.basic.camera
 
     this.sizes = new Sizes({ dom: option.dom })
-    this.clock = new Clock()
-
-    this.initialize()
-
-    console.log(this.scene)
+    
+    this.sizes.$on('resize', () => {
+      this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height))
+      this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height)
+      this.camera.updateProjectionMatrix()
+    })
 
     this.resources = new Resources(async () => {
       await this.createEarth()
@@ -67,22 +66,6 @@ export default class World {
   }
 
   async createEarth() {
-
-    this.camera.position.set(0, 30, -200)
-    this.controls.autoRotate = true
-    this.controls.autoRotateSpeed = 3
-    // 使动画循环使用时阻尼或自转 意思是否有惯性
-    this.controls.enableDamping = true;
-    // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
-    this.controls.dampingFactor = 0.05;
-    // 是否可以缩放
-    this.controls.enableZoom = true;
-    // 设置相机距离原点的最远距离
-    this.controls.minDistance = 100;
-    // 设置相机距离原点的最远距离
-    this.controls.maxDistance = 300;
-    // 是否开启右键拖拽
-    this.controls.enablePan = false;
 
     // 资源加载完成，开始制作地球
     this.earth = new Earth({
@@ -123,19 +106,6 @@ export default class World {
 
     await this.earth.init()
 
-    //
-  }
-
-  /**
-   * 初始化场景
-   */
-  public initialize() {
-    this.camera.position.set(5, 5, 5)
-    this.sizes.$on('resize', () => {
-      this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height))
-      this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height)
-      this.camera.updateProjectionMatrix()
-    })
   }
 
   /**

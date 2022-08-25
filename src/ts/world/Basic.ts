@@ -18,7 +18,7 @@ export class Basic {
   constructor(dom: HTMLElement) {
     this.dom = dom
     this.initScenes()
-    this.createControls()
+    this.setControls()
   }
 
   /**
@@ -33,32 +33,38 @@ export class Basic {
       1,
       100000
     );
+    this.camera.position.set(0, 30, -200)
+
 
     this.renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
+      alpha: true, // 透明
+      antialias: true, // 抗锯齿
     });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.dom.appendChild(this.renderer.domElement);
+    this.renderer.setPixelRatio(window.devicePixelRatio); // 设置屏幕像素比
+    this.renderer.setSize(window.innerWidth, window.innerHeight); // 设置渲染器宽高
+    this.dom.appendChild(this.renderer.domElement); // 添加到dom中
   }
+
   /**
-   * 添加控制器
+   * 设置控制器
    */
-  createControls() {
+  setControls() {
     // 鼠标控制      相机，渲染dom
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    // 是否自动旋转
+    
     this.controls.autoRotate = true
-    this.controls.autoRotateSpeed = 5
-    this.controls.enabled = true
+    this.controls.autoRotateSpeed = 3
     // 使动画循环使用时阻尼或自转 意思是否有惯性
     this.controls.enableDamping = true;
     // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
     this.controls.dampingFactor = 0.05;
     // 是否可以缩放
     this.controls.enableZoom = true;
+    // 设置相机距离原点的最远距离
+    this.controls.minDistance = 100;
+    // 设置相机距离原点的最远距离
+    this.controls.maxDistance = 300;
     // 是否开启右键拖拽
-    this.controls.enablePan = true;
+    this.controls.enablePan = false;
   }
 }
