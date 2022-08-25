@@ -1,19 +1,16 @@
 import {
-  BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Mesh, MeshBasicMaterial, NormalBlending,
+  BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Material, Mesh, MeshBasicMaterial, NormalBlending,
   Object3D,
   Points, PointsMaterial, RepeatWrapping, ShaderMaterial,
   SphereBufferGeometry, Sprite, SpriteMaterial, Texture, TextureLoader, Vector3
 } from "three";
 
-import {
-  CSS2DObject,
-  CSS2DRenderer,
-} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 import html2canvas from "html2canvas";
 
 import earthVertex from '../../shaders/earth/vertex.vs';
 import earthFragment from '../../shaders/earth/fragment.fs';
 import { createAnimateLine, createLightPillar, createPointMesh, createWaveMesh, getCirclePoints, lon2xyz } from "../Utils/common";
+import gsap from "gsap";
 // import { flyArc } from "../Utils/arc";
 
 export type punctuation = {
@@ -39,7 +36,6 @@ type options = {
   }[]
   dom: HTMLElement,
   textures: Record<string, Texture>, // 贴图
-  labelType: number, // 0 css2d 文字内容会一直在最前面 1 sprite 文字内容可以被物体遮挡
   earth: {
     radius: number, // 地球半径
     earthTime: number, // 地球旋转多长时间 0 是一直旋转
@@ -75,6 +71,7 @@ type uniforms = {
 export default class earth {
 
   public group: Group;
+  public earthGroup: Group;
 
   public around: BufferGeometry
   public aroundPoints: Points<BufferGeometry, PointsMaterial>;
@@ -88,20 +85,22 @@ export default class earth {
   public markupPoint: Group;
   public waveMeshArr: Object3D[];
 
-  public labelRenderer: CSS2DRenderer;
-
   public circleLineList: any[];
   public circleList: any[];
   public x: number;
   public n: number;
+  public isRotation: boolean;
 
   constructor(options: options) {
 
     this.options = options;
 
     this.group = new Group()
-    this.group.name = "EarthGroup";
+    this.group.name = "group";
     this.group.scale.set(0, 0, 0)
+    this.earthGroup = new Group()
+    this.group.add(this.earthGroup)
+    this.earthGroup.name = "EarthGroup";
 
     // 星空效果
     this.around = new BufferGeometry()
@@ -116,6 +115,9 @@ export default class earth {
     this.circleList = [];
     this.x = 0;
     this.n = 0;
+
+    // 地球自转
+    this.isRotation = true
 
     // 扫光动画 shader
     this.timeValue = 100
@@ -150,20 +152,17 @@ export default class earth {
   }
 
   async init(): Promise<void> {
-    return new Promise(resolve => {
-
-      console.log(111)
+    return new Promise(async (resolve) => {
 
       this.createStars(); // 添加星星
       this.createEarth(); // 创建地球
       this.createEarthAperture() // 创建地球辉光
       this.createEarthGlow() // 创建地球的大气层
-      this.createMarkupPoint() // 创建标记点
-
-      // this.options.labelType === 0 ? this.createCss2DLabel() : this.createSpriteLabel()
+      await this.createMarkupPoint() // 创建标记点
+      await this.createSpriteLabel() // 创建标签
+      this.createAnimateCircle() // 创建环绕卫星
 
       // this.createFlyLine() // 创建飞线
-      // this.createAnimateCircle() // 创建环绕卫星
       this.show()
       resolve()
     })
@@ -192,7 +191,7 @@ export default class earth {
     })
     const points = new Points(earth_border, pointMaterial); //将模型添加到场景
 
-    this.group.add(points);
+    this.earthGroup.add(points);
 
     this.options.textures.earth.wrapS = this.options.textures.earth.wrapT =
       RepeatWrapping;
@@ -208,7 +207,7 @@ export default class earth {
     earth_material.needsUpdate = true;
     this.earth = new Mesh(earth_geometry, earth_material);
     this.earth.name = "earth";
-    this.group.add(this.earth);
+    this.earthGroup.add(this.earth);
 
     // flyArcGroup.traverse((item) => {
     //   if (item.name == "飞机") {
@@ -249,7 +248,7 @@ export default class earth {
 
     this.aroundPoints = new Points(this.around, aroundMaterial);
     this.aroundPoints.name = "星空";
-    this.aroundPoints.scale.set(0.5, 0.5, 0.5);
+    this.aroundPoints.scale.set(1, 1, 1);
     this.group.add(this.aroundPoints);
   }
 
@@ -271,7 +270,7 @@ export default class earth {
     // 创建表示地球光圈的精灵模型
     const sprite = new Sprite(spriteMaterial);
     sprite.scale.set(R * 3.0, R * 3.0, 1); //适当缩放精灵
-    this.group.add(sprite);
+    this.earthGroup.add(sprite);
   }
 
   createEarthGlow() {
@@ -339,12 +338,13 @@ export default class earth {
       50
     );
     const mesh = new Mesh(sphere, material1);
-    this.group.add(mesh);
+    this.earthGroup.add(mesh);
   }
 
-  createMarkupPoint() {
+  async createMarkupPoint() {
 
-    this.options.data.forEach((item) => {
+    await Promise.all(this.options.data.map(async (item) => {
+
       const radius = this.options.earth.radius;
       const lon = item.startArray.E; //经度
       const lat = item.startArray.N; //纬度
@@ -370,7 +370,8 @@ export default class earth {
       const WaveMesh = createWaveMesh({ radius, lon, lat, textures: this.options.textures }); //波动光圈
       this.markupPoint.add(WaveMesh);
       this.waveMeshArr.push(WaveMesh);
-      item.endArray.forEach((obj) => {
+
+      await Promise.all(item.endArray.map((obj) => {
         const lon = obj.E; //经度
         const lat = obj.N; //纬度
         const mesh = createPointMesh({ radius, lon, lat, material: this.punctuationMaterial }); //光柱底座矩形平面
@@ -387,47 +388,17 @@ export default class earth {
         const WaveMesh = createWaveMesh({ radius, lon, lat, textures: this.options.textures }); //波动光圈
         this.markupPoint.add(WaveMesh);
         this.waveMeshArr.push(WaveMesh);
-      });
-      this.group.add(this.markupPoint);
-    });
+      }))
+      this.earthGroup.add(this.markupPoint)
+    }))
   }
 
-  createCss2DLabel() {
-
-    this.options.data.forEach((item) => {
+  async createSpriteLabel() {
+    await Promise.all(this.options.data.map(async item => {
       let cityArry = [];
       cityArry.push(item.startArray);
       cityArry = cityArry.concat(...item.endArray);
-      cityArry.forEach((e) => {
-        const p = lon2xyz(this.options.earth.radius * 1.001, e.E, e.N);
-        const earthDiv = document.createElement("div");
-        earthDiv.className = "css3d-monitor"; // 添加class类名
-        earthDiv.innerHTML = `
-        <div class="fire-div">
-          ${e.name}
-        </div>`;
-        const popLabel = new CSS2DObject(earthDiv);
-        popLabel.scale.set(0.1, 0.1, 0.1);
-        popLabel.rotateY(Math.PI);
-        popLabel.position.set(p.x * 1.05, p.y * 1.05, p.z * 1.05);
-        this.earth.add(popLabel);
-        this.labelRenderer = new CSS2DRenderer()
-        this.labelRenderer.setSize(window.innerWidth, window.innerHeight)
-        this.labelRenderer.domElement.style.position = "absolute"
-        this.labelRenderer.domElement.style.top = '0'
-        this.labelRenderer.domElement.className = "css3d-wapper"
-        this.options.dom.appendChild(this.labelRenderer.domElement)
-      });
-    });
-  }
-
-  createSpriteLabel() {
-
-    this.options.data.forEach((item) => {
-      let cityArry = [];
-      cityArry.push(item.startArray);
-      cityArry = cityArry.concat(...item.endArray);
-      cityArry.forEach((e) => {
+      await Promise.all(cityArry.map(async e => {
         const p = lon2xyz(this.options.earth.radius * 1.001, e.E, e.N);
         const div = `<div class="fire-div">${e.name}</div>`;
         const shareContent = document.getElementById("html2canvas");
@@ -437,24 +408,22 @@ export default class earth {
           scale: 6,
           dpi: window.devicePixelRatio,
         };
-        html2canvas(document.getElementById("html2canvas"), opts).then(
-          (canvas) => {
-            const dataURL = canvas.toDataURL("image/png");
-            const map = new TextureLoader().load(dataURL);
-            const material = new SpriteMaterial({
-              map: map,
-              transparent: true,
-            });
-            const sprite = new Sprite(material);
-            const len = 5 + (e.name.length - 2) * 2;
-            sprite.scale.set(len, 3, 1);
-            sprite.position.set(p.x * 1.1, p.y * 1.1, p.z * 1.1);
-            this.earth.add(sprite);
-          }
-        );
-      });
-    });
+        const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
+        const dataURL = canvas.toDataURL("image/png");
+        const map = new TextureLoader().load(dataURL);
+        const material = new SpriteMaterial({
+          map: map,
+          transparent: true,
+        });
+        const sprite = new Sprite(material);
+        const len = 5 + (e.name.length - 2) * 2;
+        sprite.scale.set(len, 3, 1);
+        sprite.position.set(p.x * 1.1, p.y * 1.1, p.z * 1.1);
+        this.earth.add(sprite);
+      }))
+    }))
   }
+
 
   createAnimateCircle() {
     // 创建 圆环 点
@@ -476,17 +445,17 @@ export default class earth {
       number: 100,
       radius: 0.1,
     });
-    this.group.add(line);
+    this.earthGroup.add(line);
 
     const l2 = line.clone();
     l2.scale.set(1.2, 1.2, 1.2);
     l2.rotateZ(Math.PI / 6);
-    this.group.add(l2);
+    this.earthGroup.add(l2);
 
     const l3 = line.clone();
     l3.scale.set(0.8, 0.8, 0.8);
     l3.rotateZ(-Math.PI / 6);
-    this.group.add(l3);
+    this.earthGroup.add(l3);
 
     /**
      * 旋转的球
@@ -513,41 +482,35 @@ export default class earth {
     );
 
     this.circleLineList.push(line, l2, l3);
-    ball.name = "卫星";
-    ball2.name = "卫星";
-    ball3.name = "卫星";
-    // ball.layers = this.bloomLayer;
-    // ball2.layers = this.bloomLayer;
-    // ball3.layers = this.bloomLayer;
+    ball.name = ball2.name = ball3.name = "卫星";
 
     for (let i = 0; i < this.options.satellite.number; i++) {
-      // const ball01 = ball.clone();
-      console.log(this.options.satellite.number, list.length)
-      // const num = parseInt(list.length / this.options.satellite.number);
-      // ball01.position.set(
-      //   list[num * (i + 1)][0] * 1,
-      //   list[num * (i + 1)][1] * 1,
-      //   list[num * (i + 1)][2] * 1
-      // );
-      // line.add(ball01);
+      const ball01 = ball.clone();
+      const num = Math.floor(list.length / this.options.satellite.number)
+      ball01.position.set(
+        list[num * (i + 1)][0] * 1,
+        list[num * (i + 1)][1] * 1,
+        list[num * (i + 1)][2] * 1
+      );
+      line.add(ball01);
 
-      // const ball02 = ball2.clone();
-      // const num02 = parseInt(list.length / this.options.satellite.number);
-      // ball02.position.set(
-      //   list[num02 * (i + 1)][0] * 1,
-      //   list[num02 * (i + 1)][1] * 1,
-      //   list[num02 * (i + 1)][2] * 1
-      // );
-      // l2.add(ball02);
+      const ball02 = ball2.clone();
+      const num02 = Math.floor(list.length / this.options.satellite.number)
+      ball02.position.set(
+        list[num02 * (i + 1)][0] * 1,
+        list[num02 * (i + 1)][1] * 1,
+        list[num02 * (i + 1)][2] * 1
+      );
+      l2.add(ball02);
 
-      // const ball03 = ball2.clone();
-      // const num03 = parseInt(list.length / this.options.satellite.number);
-      // ball03.position.set(
-      //   list[num03 * (i + 1)][0] * 1,
-      //   list[num03 * (i + 1)][1] * 1,
-      //   list[num03 * (i + 1)][2] * 1
-      // );
-      // l3.add(ball03);
+      const ball03 = ball2.clone();
+      const num03 = Math.floor(list.length / this.options.satellite.number)
+      ball03.position.set(
+        list[num03 * (i + 1)][0] * 1,
+        list[num03 * (i + 1)][1] * 1,
+        list[num03 * (i + 1)][2] * 1
+      );
+      l3.add(ball03);
     }
   }
 
@@ -593,17 +556,47 @@ export default class earth {
   // }
 
   show() {
-    this.group.scale.set(1, 1, 1)
+    gsap.to(this.group.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 2,
+      ease: "Quadratic",
+    })
   }
 
   render() {
 
-    // console.log('render', this.timeValue)
-    // console.log(this.uniforms.time.value)
+    if (this.isRotation) {
+      this.earthGroup.rotation.y += this.options.earth.rotateSpeed;
+    }
+
+    this.circleLineList.forEach((e) => {
+      e.rotateY(this.options.satellite.rotateSpeed);
+    });
     this.uniforms.time.value =
       this.uniforms.time.value < -this.timeValue
         ? this.timeValue
         : this.uniforms.time.value - 1;
+
+
+    if (this.waveMeshArr.length) {
+      this.waveMeshArr.forEach((mesh: Mesh) => {
+        mesh.userData['scale'] += 0.007;
+        mesh.scale.set(
+          mesh.userData['size'] * mesh.userData['scale'],
+          mesh.userData['size'] * mesh.userData['scale'],
+          mesh.userData['size'] * mesh.userData['scale']
+        );
+        if (mesh.userData['scale'] <= 1.5) {
+          (mesh.material as Material).opacity = (mesh.userData['scale'] - 1) * 2; //2等于1/(1.5-1.0)，保证透明度在0~1之间变化
+        } else if (mesh.userData['scale'] > 1.5 && mesh.userData['scale'] <= 2) {
+          (mesh.material as Material).opacity = 1 - (mesh.userData['scale'] - 1.5) * 2; //2等于1/(2.0-1.5) mesh缩放2倍对应0 缩放1.5被对应1
+        } else {
+          mesh.userData['scale'] = 1;
+        }
+      });
+    }
   }
 
 }

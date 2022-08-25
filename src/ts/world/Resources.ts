@@ -21,7 +21,7 @@ export class Resources {
    * 管理加载状态
    */
   private setLoadingManager() {
-    
+
     this.manager = new LoadingManager()
     // 开始加载
     this.manager.onStart = () => {

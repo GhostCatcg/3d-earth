@@ -51,7 +51,7 @@ export default class World {
     this.camera = this.basic.camera
 
     this.sizes = new Sizes({ dom: option.dom })
-    
+
     this.sizes.$on('resize', () => {
       this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height))
       this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height)
@@ -72,7 +72,6 @@ export default class World {
       data: Data,
       dom: this.option.dom,
       textures: this.resources.textures,
-      labelType: 1,
       earth: {
         radius: 50,
         earthTime: 5000,
@@ -86,7 +85,7 @@ export default class World {
         number: 2
       },
       punctuation: {
-        circleColor: 0x22ffcc,
+        circleColor: 0x3892ff,
         lightColumn: {
           startColor: 0xe4007f, // 起点颜色
           endColor: 0xffffff, // 终点颜色
@@ -105,6 +104,10 @@ export default class World {
     this.scene.add(this.earth.group)
 
     await this.earth.init()
+
+    // 删除dom
+    const loading = document.querySelector('#loading')
+    loading.remove()
 
   }
 

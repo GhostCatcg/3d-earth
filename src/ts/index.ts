@@ -1,5 +1,3 @@
-
-import 'normalize.css/normalize.css'
 import World  from './world/Word'
 
 // earth-canvas

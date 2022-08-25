@@ -10,6 +10,7 @@ module.exports = {
     'no-console': ['error', { allow: ['warn', 'error', 'info', "log"] }],
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-useless-escape': 0,
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-async-promise-executor": 0
   },
 }

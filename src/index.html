@@ -9,6 +9,9 @@
 <style>
   html,body{
     height:100%;
+    width: 100%;
+    padding:0;
+    margin:0;
   }
   body{
     overflow: hidden;
@@ -43,6 +46,7 @@
     position: absolute;
     z-index: -1;
     left: 0;
+    top:0;
     background: rgba(0, 0, 0, 0);
   }
   .css3d-wapper {
@@ -51,19 +55,41 @@
   }
   
   .css3d-wapper .fire-div {
-      font-size: 20px;
-      font-weight: 600;
-      border-top: 3px solid #0cd1eb;
-      padding: 6px 8px;
-      min-width: 50px;
-      background: rgba(40, 108, 181, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    font-size: 20px;
+    font-weight: 600;
+    border-top: 3px solid #0cd1eb;
+    padding: 6px 8px;
+    min-width: 50px;
+    background: rgba(40, 108, 181, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #loading{
+    position:absolute;
+    left:0;
+    top:0;
+    right:0;
+    bottom: 0;
+    width: 100vw;
+    height:100vh;
+    z-index: 999;
+    background:#010826;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #loading{
+    color:#409EFF;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
 </style>
 
 <body>
+  <div id="loading">
+    <div>加载资源中...</div>
+  </div>
   <div id="html2canvas" class="css3d-wapper">
     <div class="fire-div"></div>
   </div>

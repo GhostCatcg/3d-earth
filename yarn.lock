@@ -4191,11 +4191,6 @@ normalize-path@^3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-normalize.css@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/normalize.css/-/normalize.css-8.0.1.tgz#9b98a208738b9cc2634caacbc42d131c97487bf3"
-  integrity sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==
-
 npm-run-path@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/npm-run-path/-/npm-run-path-2.0.2.tgz#35a9232dfa35d7067b4cb2ddf2357b1871536c5f"
@@ -5510,10 +5505,10 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-three@^0.138:
-  version "0.138.2"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.138.2.tgz#946c7c550b58e16606343cec0e44715e8865c04e"
-  integrity sha512-l49+mdqpevKIk7ByLmt7cc5RdSwSnZ6rP1cLe8VCI/++c0/6AFYyHw6xjT2VyXYxodCnDSw7iARjKL2MlHVCOg==
+three@^0.143:
+  version "0.143.0"
+  resolved "https://npm.tools.baoxiaohe.com/three/-/three-0.143.0.tgz#1455bca132cc2b20beb7f41d313e10c29e5ed9df"
+  integrity sha512-oKcAGYHhJ46TGEuHjodo2n6TY2R6lbvrkp+feKZxqsUL/WkH7GKKaeu6RHeyb2Xjfk2dPLRKLsOP0KM2VgT8Zg==
 
 through@^2.3.8:
   version "2.3.8"
@@ -5601,11 +5596,6 @@ tsutils@^3.21.0:
   integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
-
-tweakpane@^3.0.5:
-  version "3.0.7"
-  resolved "https://registry.yarnpkg.com/tweakpane/-/tweakpane-3.0.7.tgz#a514a08aa4fafb542923d83e4be6915887dac7e5"
-  integrity sha512-rgxqoo6T10atYoKHVif6aYlAMIAlHJ84hi5LXqi6ZgVEPcmnzPI34C88y6HquarBY0ZKE/ZCXVaZm8NibhQRtA==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

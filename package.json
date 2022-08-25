@@ -52,8 +52,7 @@
     "gsap": "^3.7.1",
     "html2canvas": "^1.4.1",
     "lodash": "^4.17.21",
-    "normalize.css": "^8.0.1",
     "pietile-eventemitter": "^1.0.1",
-    "three": "^0.138"
+    "three": "^0.143"
   }
 }
