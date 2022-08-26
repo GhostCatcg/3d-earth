@@ -38,8 +38,6 @@ type options = {
   textures: Record<string, Texture>, // 贴图
   earth: {
     radius: number, // 地球半径
-    earthTime: number, // 地球旋转多长时间 0 是一直旋转
-    rotateEnabled: boolean, // 是否自动旋转
     rotateSpeed: number, // 地球旋转速度
   }
   satellite: {
@@ -102,9 +100,6 @@ export default class earth {
     this.group.add(this.earthGroup)
     this.earthGroup.name = "EarthGroup";
 
-    // 星空效果
-    this.around = new BufferGeometry()
-
     // 标注点效果
     this.markupPoint = new Group()
     this.markupPoint.name = "markupPoint"
@@ -154,15 +149,14 @@ export default class earth {
   async init(): Promise<void> {
     return new Promise(async (resolve) => {
 
-      this.createStars(); // 添加星星
       this.createEarth(); // 创建地球
-      this.createEarthAperture() // 创建地球辉光
-      this.createEarthGlow() // 创建地球的大气层
-      await this.createMarkupPoint() // 创建标记点
+      this.createStars(); // 添加星星
+      this.createEarthGlow() // 创建地球辉光
+      this.createEarthAperture() // 创建地球的大气层
+      await this.createMarkupPoint() // 创建柱状点位
       await this.createSpriteLabel() // 创建标签
       this.createAnimateCircle() // 创建环绕卫星
 
-      // this.createFlyLine() // 创建飞线
       this.show()
       resolve()
     })
@@ -234,6 +228,8 @@ export default class earth {
       colors.push(new Color(1, 1, 1));
     }
 
+    // 星空效果
+    this.around = new BufferGeometry()
     this.around.setAttribute("position", new BufferAttribute(new Float32Array(vertices), 3));
     this.around.setAttribute("color", new BufferAttribute(new Float32Array(colors), 3));
 
@@ -252,11 +248,11 @@ export default class earth {
     this.group.add(this.aroundPoints);
   }
 
-  createEarthAperture() {
+  createEarthGlow() {
     const R = this.options.earth.radius; //地球半径
 
     // TextureLoader创建一个纹理加载器对象，可以加载图片作为纹理贴图
-    const texture = this.options.textures.earth_aperture; //加载纹理贴图
+    const texture = this.options.textures.glow; //加载纹理贴图
 
     // 创建精灵材质对象SpriteMaterial
     const spriteMaterial = new SpriteMaterial({
@@ -273,7 +269,7 @@ export default class earth {
     this.earthGroup.add(sprite);
   }
 
-  createEarthGlow() {
+  createEarthAperture() {
 
     const vertexShader = [
       "varying vec3	vVertexWorldPosition;",
@@ -439,7 +435,6 @@ export default class earth {
       side: DoubleSide,
     });
     const line = createAnimateLine({
-      type: "pipe",
       pointList: list,
       material: mat,
       number: 100,
@@ -447,6 +442,7 @@ export default class earth {
     });
     this.earthGroup.add(line);
 
+    // 在clone两条线出来
     const l2 = line.clone();
     l2.scale.set(1.2, 1.2, 1.2);
     l2.rotateZ(Math.PI / 6);
@@ -486,6 +482,7 @@ export default class earth {
 
     for (let i = 0; i < this.options.satellite.number; i++) {
       const ball01 = ball.clone();
+      // 一根线上总共有几个球，根据数量平均分布一下
       const num = Math.floor(list.length / this.options.satellite.number)
       ball01.position.set(
         list[num * (i + 1)][0] * 1,
@@ -514,47 +511,6 @@ export default class earth {
     }
   }
 
-  // createFlyLine() {
-  //   const flyArcGroup = new Group();
-  //   const flyArr = []
-
-  //   this.options.data.forEach((item) => {
-  //     item.endArray.forEach((coord) => {
-  //       //   /*调用函数flyArc绘制球面上任意两点之间飞线圆弧轨迹*/
-  //       const arcline = flyArc(
-  //         this.options.earth.radius,
-  //         item.startArray.E,
-  //         item.startArray.N,
-  //         coord.E,
-  //         coord.N
-  //       );
-
-  //       const material = new MeshBasicMaterial({
-  //         side: DoubleSide,
-  //         transparent: true,
-  //       });
-  //       const mesh = new Mesh(new PlaneGeometry(5, 5), material);
-  //       // mesh.positionCount = 0;
-  //       // mesh.positionVertices = arcline.geometry.vertices;
-  //       mesh.position.copy(arcline.geometry.vertices[10]);
-  //       mesh.rotateY(Math.PI / 2);
-  //       mesh.rotateX(360);
-  //       mesh.name = "飞机";
-  //       if (this.options.flyLine.showAircraft) {
-  //         arcline.add(mesh);
-  //       }
-
-  //       flyArcGroup.add(arcline); //飞线插入flyArcGroup中
-  //       // flyArr.push(arcline.flyLine); //获取飞线段
-  //     });
-  //   })
-
-
-
-
-  //   // this.group.add(flyArcGroup);
-  // }
-
   show() {
     gsap.to(this.group.scale, {
       x: 1,
@@ -574,6 +530,7 @@ export default class earth {
     this.circleLineList.forEach((e) => {
       e.rotateY(this.options.satellite.rotateSpeed);
     });
+    
     this.uniforms.time.value =
       this.uniforms.time.value < -this.timeValue
         ? this.timeValue

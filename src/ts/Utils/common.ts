@@ -125,41 +125,19 @@ export const getCirclePoints = (option) => {
  * 创建动态的线
  */
 export const createAnimateLine = (option) => {
-  let curve;
-  if (option.kind === "sphere") {
-    // 由两点之间连线成贝塞尔曲线
-    // const sphereHeightPointsArgs = option.sphereHeightPointsArgs;
-    // const pointList = getSphereHeightPoints(...sphereHeightPointsArgs); // v0,v3,n1,n2,p0
-    // curve = new CubicBezierCurve3(
-    //   sphereHeightPointsArgs[0],
-    //   pointList[0],
-    //   pointList[1],
-    //   sphereHeightPointsArgs[1]
-    // );
-  } else {
-    // 由多个点数组构成的曲线 通常用于道路
-    const l = [];
-    option.pointList.forEach((e) =>
-      l.push(new Vector3(e[0], e[1], e[2]))
-    );
-    curve = new CatmullRomCurve3(l); // 曲线路径
-  }
-  if (option.type === "pipe") {
-    // 使用管道线
-    // 管道体
-    const tubeGeometry = new TubeGeometry(
-      curve,
-      option.number || 50,
-      option.radius || 1,
-      option.radialSegments
-    );
-    return new Mesh(tubeGeometry, option.material);
-  } else {
-    // 使用 meshLine
-    // const geo = new Geometry();
-    // geo.vertices = curve.getPoints(option.number || 50);
-    // const meshLine = new MeshLine();
-    // meshLine.setGeometry(geo);
-    // return new Mesh(meshLine.geometry, option.material);
-  }
+  // 由多个点数组构成的曲线 通常用于道路
+  const l = [];
+  option.pointList.forEach((e) =>
+    l.push(new Vector3(e[0], e[1], e[2]))
+  );
+  const curve = new CatmullRomCurve3(l); // 曲线路径
+
+  // 管道体
+  const tubeGeometry = new TubeGeometry(
+    curve,
+    option.number || 50,
+    option.radius || 1,
+    option.radialSegments
+  );
+  return new Mesh(tubeGeometry, option.material);
 }

@@ -3,8 +3,6 @@
  * 把模型和图片分开进行加载
  */
 
-import { Material } from "three"
-
 interface ITextures {
   name: string
   url: string
@@ -12,7 +10,6 @@ interface ITextures {
 
 export interface IResources {
   textures?: ITextures[],
-  models?: Material,
 }
 
 const filePath = './images/earth/'
@@ -21,7 +18,7 @@ const fileSuffix = [
   'redCircle',
   "label",
   "aperture",
-  'earth_aperture',
+  'glow',
   'light_column',
   'aircraft'
 ]

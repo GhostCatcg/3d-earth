@@ -13,11 +13,6 @@ import { Basic } from './Basic'
 import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
 
-import { EventEmitter } from "pietile-eventemitter";
-
-// interface
-import { IEvents } from '../interfaces/IEvents'
-
 // earth 
 import Earth from './Earth'
 import Data from './Data'
@@ -31,7 +26,6 @@ export default class World {
   public sizes: Sizes;
   public material: ShaderMaterial | MeshBasicMaterial;
   public resources: Resources;
-  public emitter: EventEmitter<IEvents>
   public option: IWord;
   public earth: Earth;
 
@@ -41,8 +35,6 @@ export default class World {
      * 加载资源
      */
     this.option = option
-
-    this.emitter = new EventEmitter<IEvents>()
 
     this.basic = new Basic(option.dom)
     this.scene = this.basic.scene
@@ -67,15 +59,13 @@ export default class World {
 
   async createEarth() {
 
-    // 资源加载完成，开始制作地球
+    // 资源加载完成，开始制作地球，注释在new Earth()类型里面
     this.earth = new Earth({
       data: Data,
       dom: this.option.dom,
       textures: this.resources.textures,
       earth: {
         radius: 50,
-        earthTime: 5000,
-        rotateEnabled: false,
         rotateSpeed: 0.002,
       },
       satellite: {
@@ -105,9 +95,9 @@ export default class World {
 
     await this.earth.init()
 
-    // 删除dom
+    // 隐藏dom
     const loading = document.querySelector('#loading')
-    loading.remove()
+    loading.classList.add('out')
 
   }
 

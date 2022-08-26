@@ -1,8 +1,8 @@
 export default [{
   startArray: {
-    name: '江苏',
-    N: 30.245853,
-    E: 120.209947,
+    name: '杭州',
+    N: 30.246026,
+    E: 120.210792,
   },
   endArray: [{
       name: '曼谷',
