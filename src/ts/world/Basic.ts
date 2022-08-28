@@ -33,7 +33,7 @@ export class Basic {
       1,
       100000
     );
-    this.camera.position.set(0, 30, -200)
+    this.camera.position.set(0, 30, -250)
 
 
     this.renderer = new THREE.WebGLRenderer({

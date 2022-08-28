@@ -1,7 +1,7 @@
 import {
   BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Material, Mesh, MeshBasicMaterial, NormalBlending,
   Object3D,
-  Points, PointsMaterial, RepeatWrapping, ShaderMaterial,
+  Points, PointsMaterial, ShaderMaterial,
   SphereBufferGeometry, Sprite, SpriteMaterial, Texture, TextureLoader, Vector3
 } from "three";
 
@@ -11,7 +11,7 @@ import earthVertex from '../../shaders/earth/vertex.vs';
 import earthFragment from '../../shaders/earth/fragment.fs';
 import { createAnimateLine, createLightPillar, createPointMesh, createWaveMesh, getCirclePoints, lon2xyz } from "../Utils/common";
 import gsap from "gsap";
-// import { flyArc } from "../Utils/arc";
+import { flyArc } from "../Utils/arc";
 
 export type punctuation = {
   circleColor: number,
@@ -39,6 +39,7 @@ type options = {
   earth: {
     radius: number, // 地球半径
     rotateSpeed: number, // 地球旋转速度
+    isRotation: boolean // 地球组是否自转
   }
   satellite: {
     show: boolean, // 是否显示卫星
@@ -48,12 +49,9 @@ type options = {
   },
   punctuation: punctuation,
   flyLine: {
-    showAircraft: boolean, // 是否显示飞机
     color: number, // 飞线的颜色
-    showLine: boolean, // 是否显示飞机拖尾线
     speed: number, // 飞机拖尾线速度
-    colorStart: number, // 飞机拖尾线起点颜色
-    colorEnd: number, // 飞机拖尾线终点颜色
+    flyLineColor: number // 飞行线的颜色
   },
 }
 type uniforms = {
@@ -88,6 +86,7 @@ export default class earth {
   public x: number;
   public n: number;
   public isRotation: boolean;
+  public flyLineArcGroup: Group;
 
   constructor(options: options) {
 
@@ -112,7 +111,7 @@ export default class earth {
     this.n = 0;
 
     // 地球自转
-    this.isRotation = true
+    this.isRotation = this.options.earth.isRotation
 
     // 扫光动画 shader
     this.timeValue = 100
@@ -156,6 +155,7 @@ export default class earth {
       await this.createMarkupPoint() // 创建柱状点位
       await this.createSpriteLabel() // 创建标签
       this.createAnimateCircle() // 创建环绕卫星
+      this.createFlyLine() // 创建飞线
 
       this.show()
       resolve()
@@ -187,8 +187,6 @@ export default class earth {
 
     this.earthGroup.add(points);
 
-    this.options.textures.earth.wrapS = this.options.textures.earth.wrapT =
-      RepeatWrapping;
     this.uniforms.map.value = this.options.textures.earth;
 
     const earth_material = new ShaderMaterial({
@@ -202,16 +200,6 @@ export default class earth {
     this.earth = new Mesh(earth_geometry, earth_material);
     this.earth.name = "earth";
     this.earthGroup.add(this.earth);
-
-    // flyArcGroup.traverse((item) => {
-    //   if (item.name == "飞机") {
-    //     item.material.map = this.textureObject.aircraft;
-    //     this.aircraft.push(item);
-    //   }
-    //   if (item.name == "飞行线") {
-    //     item.material.map = this.textureObject.gradient;
-    //   }
-    // });
 
   }
 
@@ -252,14 +240,14 @@ export default class earth {
     const R = this.options.earth.radius; //地球半径
 
     // TextureLoader创建一个纹理加载器对象，可以加载图片作为纹理贴图
-    const texture = this.options.textures.glow; //加载纹理贴图
+    const texture = this.options.textures.glow; // 加载纹理贴图
 
     // 创建精灵材质对象SpriteMaterial
     const spriteMaterial = new SpriteMaterial({
-      map: texture, //设置精灵纹理贴图
+      map: texture, // 设置精灵纹理贴图
       color: 0x4390d1,
       transparent: true, //开启透明
-      opacity: 0.7, //可以通过透明度整体调节光圈
+      opacity: 0.7, // 可以通过透明度整体调节光圈
       depthWrite: false, //禁止写入深度缓冲区数据
     });
 
@@ -311,11 +299,11 @@ export default class earth {
         "varying vec4	vFragColor;",
 
         "void main(){",
-        "	vec3 worldCameraToVertex= vVertexWorldPosition - cameraPosition;", //世界坐标系中从相机位置到顶点位置的距离
+        "	vec3 worldCameraToVertex = vVertexWorldPosition - cameraPosition;", //世界坐标系中从相机位置到顶点位置的距离
         "	vec3 viewCameraToVertex	= (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;", //视图坐标系中从相机位置到顶点位置的距离
-        "	viewCameraToVertex	= normalize(viewCameraToVertex);", //规一化
-        "	float intensity		= pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);",
-        "	gl_FragColor		= vec4(glowColor, intensity);",
+        "	viewCameraToVertex= normalize(viewCameraToVertex);", //规一化
+        "	float intensity	= pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);",
+        "	gl_FragColor = vec4(glowColor, intensity);",
         "}",
       ].join("\n"),
     };
@@ -420,7 +408,6 @@ export default class earth {
     }))
   }
 
-
   createAnimateCircle() {
     // 创建 圆环 点
     const list = getCirclePoints({
@@ -511,6 +498,33 @@ export default class earth {
     }
   }
 
+  createFlyLine() {
+
+    this.flyLineArcGroup = new Group();
+    this.flyLineArcGroup.userData['flyLineArray'] = []
+    this.earthGroup.add(this.flyLineArcGroup)
+
+    this.options.data.forEach((cities) => {
+      cities.endArray.forEach(item => {
+
+        // 调用函数flyArc绘制球面上任意两点之间飞线圆弧轨迹
+        const arcline = flyArc(
+          this.options.earth.radius,
+          cities.startArray.E,
+          cities.startArray.N,
+          item.E,
+          item.N,
+          this.options.flyLine
+        );
+
+        this.flyLineArcGroup.add(arcline); // 飞线插入flyArcGroup中
+        this.flyLineArcGroup.userData['flyLineArray'].push(arcline.userData['flyLine'])
+      });
+
+    })
+
+  }
+
   show() {
     gsap.to(this.group.scale, {
       x: 1,
@@ -523,6 +537,11 @@ export default class earth {
 
   render() {
 
+    this.flyLineArcGroup?.userData['flyLineArray']?.forEach(fly => {
+      fly.rotation.z += this.options.flyLine.speed; // 调节飞线速度
+      if (fly.rotation.z >= fly.flyEndAngle) fly.rotation.z = 0;
+    })
+
     if (this.isRotation) {
       this.earthGroup.rotation.y += this.options.earth.rotateSpeed;
     }
@@ -530,12 +549,11 @@ export default class earth {
     this.circleLineList.forEach((e) => {
       e.rotateY(this.options.satellite.rotateSpeed);
     });
-    
+
     this.uniforms.time.value =
       this.uniforms.time.value < -this.timeValue
         ? this.timeValue
         : this.uniforms.time.value - 1;
-
 
     if (this.waveMeshArr.length) {
       this.waveMeshArr.forEach((mesh: Mesh) => {
@@ -554,6 +572,7 @@ export default class earth {
         }
       });
     }
+
   }
 
 }

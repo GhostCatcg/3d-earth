@@ -8,10 +8,10 @@ import { punctuation } from "../world/Earth";
  * @param {经度(角度值)} longitude 
  * @param {维度(角度值)} latitude
  */
-export const lon2xyz = (R, longitude, latitude): Vector3 => {
-  let lon = longitude * Math.PI / 180;//转弧度值
-  const lat = latitude * Math.PI / 180;//转弧度值
-  lon = -lon;// js坐标系z坐标轴对应经度-90度，而不是90度
+export const lon2xyz = (R:number, longitude:number, latitude:number): Vector3 => {
+  let lon = longitude * Math.PI / 180; // 转弧度值
+  const lat = latitude * Math.PI / 180; // 转弧度值
+  lon = -lon; // js坐标系z坐标轴对应经度-90度，而不是90度
 
   // 经纬度坐标转球面坐标计算公式
   const x = R * Math.cos(lat) * Math.cos(lon);
@@ -90,15 +90,16 @@ export const createPointMesh = (options: {
   const mesh = new Mesh(geometry, options.material);
   // 经纬度转球面坐标
   const coord = lon2xyz(options.radius * 1.001, options.lon, options.lat);
-  const size = options.radius * 0.05; //矩形平面Mesh的尺寸
-  mesh.scale.set(size, size, size); //设置mesh大小
+  const size = options.radius * 0.05; // 矩形平面Mesh的尺寸
+  mesh.scale.set(size, size, size); // 设置mesh大小
 
-  //设置mesh位置
+  // 设置mesh位置
   mesh.position.set(coord.x, coord.y, coord.z);
   const coordVec3 = new Vector3(coord.x, coord.y, coord.z).normalize();
   const meshNormal = new Vector3(0, 0, 1);
   mesh.quaternion.setFromUnitVectors(meshNormal, coordVec3);
   return mesh;
+
 }
 
 // 获取点

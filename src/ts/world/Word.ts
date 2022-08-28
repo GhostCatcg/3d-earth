@@ -67,6 +67,7 @@ export default class World {
       earth: {
         radius: 50,
         rotateSpeed: 0.002,
+        isRotation: true
       },
       satellite: {
         show: true,
@@ -82,12 +83,9 @@ export default class World {
         },
       },
       flyLine: {
-        showAircraft: true, // 是否显示飞机
-        color: 0xd18547, // 飞线的颜色
-        showLine: true, // 是否显示飞行拖尾线
+        color: 0xf3ae76, // 飞线的颜色
+        flyLineColor: 0xff7714, // 飞行线的颜色
         speed: 0.004, // 拖尾飞线的速度
-        colorStart: 0xec8f43, // 飞行线开头的颜色
-        colorEnd: 0xf3ae76, // 飞行线结尾的颜色
       }
     })
 
